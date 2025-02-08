@@ -332,6 +332,12 @@
       $files = scandir(MEDIA_PATH);
       $thumbnails = array();
       $nowTime = time();
+      
+      // Debugging output
+      echo "<pre>";
+      print_r($files);
+      echo "</pre>";
+
       foreach($files as $file) {
          if($file != '.' && $file != '..' && (isThumbnail($file) || getFileType($file) == 'a')) { // Include audio files
 			 $fTime = filemtime(MEDIA_PATH . "/$file");

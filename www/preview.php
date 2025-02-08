@@ -340,7 +340,7 @@
          if(($file != '.' && $file != '..' && isThumbnail($file)) || getFileType($file) == 'a') { // Include audio files
             // Debugging output
             echo "<pre>";
-            print_r($file);
+            print_r(getFileType($file));
             echo "</pre>";
             $fTime = filemtime(MEDIA_PATH . "/$file");
             if ($timeFilter == 1) {

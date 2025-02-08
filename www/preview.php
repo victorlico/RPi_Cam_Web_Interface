@@ -337,6 +337,9 @@
       echo "</pre>";
       
       foreach($files as $file) {
+         echo "<pre>";
+         print_r($file);
+         echo "</pre>";
          if(($file != '.' && $file != '..' && isThumbnail($file)) || getFileType($file) == 'a') { // Include audio files
             // Debugging output
             echo "<pre>";

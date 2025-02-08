@@ -189,7 +189,7 @@
                   $size += filesize($lapse);
                 }
               }
-           } else if ($t == 'v' || $t == 'i') {
+           } else if ($t == 'v' || $t == 'i' || $t == 'a') { // Include audio files
               $base = dataFilename($file);
               $f = MEDIA_PATH . "/$base";
               if (file_exists($f)) {
@@ -280,6 +280,7 @@
             $lapseCount = '(' . count(findLapseFiles($f)). ')';
             break;
          case 'i': $fIcon = 'image.png'; break;
+         case 'a': $fIcon = 'audio.png'; break; // Add case for audio files
          default : $fIcon = 'image.png'; break;
       }
       $duration ='';
@@ -346,7 +347,7 @@
             }
             if($include) {
                $fType = getFileType($file);
-               if(($showTypes == '1') || ($showTypes == '2' && ($fType == 'i' || $fType == 't')) || ($showTypes == '3' && ($fType == 'v'))) {
+               if(($showTypes == '1') || ($showTypes == '2' && ($fType == 'i' || $fType == 't')) || ($showTypes == '3' && ($fType == 'v')) || ($showTypes == '4' && ($fType == 'a'))) {
                   $thumbnails[$file] = $fType . $fTime;
                }
             }
@@ -414,6 +415,8 @@ function diskUsage() {
       echo "<option value='2'  $selected>Images only</option>";
       if ($showTypes == 3) $selected = "selected"; else $selected = "";
       echo "<option value='3'  $selected>Videos only</option>";
+      if ($showTypes == 4) $selected = "selected"; else $selected = "";
+      echo "<option value='4'  $selected>Audio only</option>"; // Add option for audio files
       echo '</select>';
       echo '&nbsp;Filter&nbsp;<select id="timeFilter" name="timeFilter" onchange="this.form.submit()">';
       if ($timeFilter == 1) $selected = "selected"; else $selected = "";

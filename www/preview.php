@@ -335,7 +335,7 @@
 
       
       foreach($files as $file) {
-         if($file != '.' && $file != '..' && isThumbnail($file) || getFileType($file) == 'a') { // Include audio files
+         if(($file != '.' && $file != '..' && isThumbnail($file)) || getFileType($file) == 'a') { // Include audio files
             // Debugging output
             echo "<pre>";
             print_r($file);

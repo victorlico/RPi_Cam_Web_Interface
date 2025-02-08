@@ -333,7 +333,7 @@
       $thumbnails = array();
       $nowTime = time();
       foreach($files as $file) {
-         if($file != '.' && $file != '..' && isThumbnail($file)) {
+         if($file != '.' && $file != '..' && (isThumbnail($file) || getFileType($file) == 'a')) { // Include audio files
 			 $fTime = filemtime(MEDIA_PATH . "/$file");
             if ($timeFilter == 1) {
                $include = true;

@@ -279,15 +279,10 @@
    
 	function getFileType($file) {
 		$i = strrpos($file, '.', -8);
-		if ($i !== false) {
-			$ext = substr($file, $i + 1, 1);
-			if ($ext == 'a' && substr($file, -4) == '.wav') {
-				return 'a'; // Add condition for audio files
-			}
-			return $ext;
-		} else {
+		if ($i !== false)
+			return substr($file, $i + 1, 1);
+		else
 			return ""; 
-		}
 	}
    
 	function getFileIndex($file) {

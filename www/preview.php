@@ -421,7 +421,7 @@ function diskUsage() {
       echo '</select>';
       echo '&nbsp;Types&nbsp;<select id="showTypes" name="showTypes" onchange="this.form.submit()">';
       if ($showTypes == 1) $selected = "selected"; else $selected = "";
-      echo "<option value='1' $selected>Images &amp Videos</option>";
+      echo "<option value='1' $selected>All</option>";
       if ($showTypes == 2) $selected = "selected"; else $selected = "";
       echo "<option value='2'  $selected>Images only</option>";
       if ($showTypes == 3) $selected = "selected"; else $selected = "";

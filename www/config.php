@@ -276,13 +276,22 @@
 	function isThumbnail($file) {
 		return (substr($file, -7) == THUMBNAIL_EXT);
 	}
-   
+
+	function isAudioFile($file) {
+		$fileInfo = pathinfo($file);
+		return isset($fileInfo['extension']) && strtolower($fileInfo['extension']) === 'wav' ? 1 : 0;
+	}
+
 	function getFileType($file) {
-		$i = strrpos($file, '.', -8);
-		if ($i !== false)
-			return substr($file, $i + 1, 1);
-		else
-			return ""; 
+		if (isAudioFile($file))
+			return "a";
+		else {
+			$i = strrpos($file, '.', -8);
+			if ($i !== false)
+				return substr($file, $i + 1, 1);
+			else
+				return ""; 
+		}	
 	}
    
 	function getFileIndex($file) {

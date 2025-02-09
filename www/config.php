@@ -232,12 +232,12 @@
 			// For time lapse lock all from this batch
 			$files = findLapseFiles($d);
 			foreach($files as $file) {
-					chmod($file, $attr);
+				chmod($file, $attr);
 			}
 		} else {
 			$tFile = dataFilename($d);
 			if (file_exists(LBASE_DIR . '/' . MEDIA_PATH . "/$tFile")) {
-			chmod(LBASE_DIR . '/' . MEDIA_PATH . "/$tFile", $attr);
+				chmod(LBASE_DIR . '/' . MEDIA_PATH . "/$tFile", $attr);
 			}
 			if ($t == 'v' && file_exists(LBASE_DIR . '/' . MEDIA_PATH . "/$tFile.dat")) {
 				chmod(LBASE_DIR . '/' . MEDIA_PATH . "/$tFile.dat", $attr);
@@ -248,15 +248,24 @@
 		}
 		chmod(LBASE_DIR . '/' . MEDIA_PATH . "/$d", $attr);
 	}
-
-   
+	
+	
 	//Support naming functions
+	function isAudioFile($file) {
+		$fileInfo = pathinfo($file);
+		return isset($fileInfo['extension']) && strtolower($fileInfo['extension']) === 'wav' ? 1 : 0;
+	}
+
 	function dataFilename($file) {
-		$i = strrpos($file, '.', -8);
-		if ($i !== false)
-			return str_replace(SUBDIR_CHAR, '/', substr($file, 0, $i));
-		else
-			return ""; 
+		if (isAudioFile($file))
+			return $file;
+		else {
+			$i = strrpos($file, '.', -8);
+			if ($i !== false)
+				return str_replace(SUBDIR_CHAR, '/', substr($file, 0, $i));
+			else
+				return "";
+		}
 	}
 
 	function dataFileext($file) {
@@ -277,10 +286,6 @@
 		return (substr($file, -7) == THUMBNAIL_EXT);
 	}
 
-	function isAudioFile($file) {
-		$fileInfo = pathinfo($file);
-		return isset($fileInfo['extension']) && strtolower($fileInfo['extension']) === 'wav' ? 1 : 0;
-	}
 
 	function getFileType($file) {
 		if (isAudioFile($file))

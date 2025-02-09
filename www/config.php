@@ -295,11 +295,16 @@
 	}
    
 	function getFileIndex($file) {
-		$i = strrpos($file, '.', -8);
-		if ($i !== false)
-			return substr($file, $i + 2, strlen($file) - $i - 9);
-		else
-			return ""; 
+		if (isAudioFile($file) && preg_match('/au_(\d{4})_/', $file, $matches)){ // verify if is audio and the number after au_ is 4 digits
+			return $matches[1];
+		}
+		else {
+			$i = strrpos($file, '.', -8);
+			if ($i !== false)
+				return substr($file, $i + 2, strlen($file) - $i - 9);
+			else
+				return "";
+		}
 	}
 
 	function getLogFile() {

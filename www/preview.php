@@ -287,7 +287,7 @@
       if (file_exists(MEDIA_PATH . "/$rFile")) {
          $fsz = round ((filesize_n(MEDIA_PATH . "/$rFile")) / 1024);
          $fModTime = filemtime(MEDIA_PATH . "/$rFile");
-         if ($fType == 'v') {
+         if ($fType == 'v' || $fType == 'a') {
             $duration = ($fModTime - filemtime(MEDIA_PATH . "/$f")) . 's';
          }
       } else {

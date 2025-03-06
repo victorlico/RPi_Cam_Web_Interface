@@ -273,9 +273,6 @@
       $rFile = dataFilename($f);
       $fNumber = getFileIndex($f);
       $lapseCount = "";
-      // echo "<pre>";
-      // print_r($f);
-      // echo "</pre>";
       switch ($fType) {
          case 'v': $fIcon = 'video.png'; break;
          case 't': 
@@ -292,6 +289,9 @@
          $fModTime = filemtime(MEDIA_PATH . "/$rFile");
          if ($fType == 'v' || $fType == 'a') {
             $duration = ($fModTime - filemtime(MEDIA_PATH . "/$f")) . 's';
+            // echo "<pre>";
+            // print_r("f:" . $f . "rFile:" . $rFile); // TODO: duration of audio files - not working
+            // echo "</pre>";
          }
       } else {
          $fsz = 0;

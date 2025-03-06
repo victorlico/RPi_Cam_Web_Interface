@@ -273,6 +273,9 @@
       $rFile = dataFilename($f);
       $fNumber = getFileIndex($f);
       $lapseCount = "";
+      // echo "<pre>";
+      // print_r($f);
+      // echo "</pre>";
       switch ($fType) {
          case 'v': $fIcon = 'video.png'; break;
          case 't': 
@@ -319,7 +322,11 @@
       }
       echo "<br>$fDate<br>$fTime<br>";
       if ($fsz > 0) echo "<a title='$rFile' href='#' onclick='load_preview(\"$f\");'>";
-      echo "<img src='" . MEDIA_PATH . "/$f' style='width:" . $ts . "px'/>";
+      if ($fType == 'a') {
+         echo "<img src='sound.png' style='width:" . 0.6*$ts . "px'/>";
+      } else {
+         echo "<img src='" . MEDIA_PATH . "/$f' style='width:" . $ts . "px'/>";
+      }
       if ($fsz > 0) echo "</a>";
       echo "</fieldset> ";
    }
@@ -332,19 +339,13 @@
       $files = scandir(MEDIA_PATH);
       $thumbnails = array();
       $nowTime = time();
-      echo "<pre>";
-      print_r($files);
-      echo "</pre>";
       
       foreach($files as $file) {
-         echo "<pre>";
-         print_r(getFileType($file));
-         echo "</pre>";
          if(($file != '.' && $file != '..' && isThumbnail($file)) || getFileType($file) == 'a') { // Include audio files
             // Debugging output
-            echo "<pre>";
-            print_r($file);
-            echo "</pre>";
+            // echo "<pre>";
+            // print_r($file);
+            // echo "</pre>";
             $fTime = filemtime(MEDIA_PATH . "/$file");
             if ($timeFilter == 1) {
                $include = true;

@@ -69,13 +69,18 @@ function load_preview(thumbnail) {
 		nextButton.disabled = true;
 	}
 
+	
 	var mediaURL = mediaBase + imageFromThumbnail(thumbnail);
 	if (mediaURL) {
 		var media_content;
 		if (fileExtension(mediaURL) == 'jpg') {
 			media_content = '<a href="' + mediaURL + '" target="_blank"><img src="' + mediaURL + '" style="width: ' + previewWidth + 'px;"></a>';
 		} else {
-			media_content = '<video style="width:' + previewWidth + 'px;" controls><source src="' + mediaURL + '" type="video/mp4">Your browser does not support the video tag.</video>';
+			if (fileExtension(thumbnail) == 'wav') {
+				media_content = '<video controls><source src="' + mediaBase + thumbnail + '" type="audio/x-wav">Your browser does not support the audio tag.</video>';
+			} else {
+				media_content = '<video style="width:' + previewWidth + 'px;" controls><source src="' + mediaURL + '" type="video/mp4">Your browser does not support the video tag.</video>';
+			}
 		}
 
 		mediaDiv.innerHTML = media_content;

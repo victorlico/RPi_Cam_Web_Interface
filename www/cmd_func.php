@@ -14,6 +14,10 @@
 					shell_exec("sudo date -s \"$timestr\"");
 				}
 			}
+		} else if(strncmp($cmd, "pause_loop", strlen("pause_loop")) == 0) {
+			shell_exec('sudo /var/www/html/macros/wittypi_pause_loop');
+		} else if(strncmp($cmd, "reset_wittypi", strlen("reset_wittypi")) == 0) {
+			shell_exec('sudo /var/www/html/macros/wittypi_reset');
 		} else {
 			// unknown
 		}

@@ -314,7 +314,8 @@
          <a href="preview.php" class="btn btn-default" <?php getdisplayStyle('preview', $userLevel); ?>>Download Videos and Images</a>
          &nbsp;&nbsp;
          <?php  if($config['motion_external'] == '1'): ?><a href="motion.php" class="btn btn-default" <?php getdisplayStyle('settings', $userLevel); ?>>Edit motion settings</a>&nbsp;&nbsp;<?php endif; ?>
-         <a href="schedule.php" class="btn btn-default" <?php getdisplayStyle('settings', $userLevel); ?>>Edit schedule settings</a>
+         <a href="schedule.php" class="btn btn-default" <?php getdisplayStyle('settings', $userLevel); ?>>Edit screen schedule settings</a>
+         <a href="power_schedule.php" class="btn btn-default" <?php getDisplayStyle('settings', $userLevel); ?>>Configure power schedule</a>
       </div>
     
       <div class="container-fluid text-center">

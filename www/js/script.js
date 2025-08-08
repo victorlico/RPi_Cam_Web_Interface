@@ -192,6 +192,16 @@ function sys_settime() {
   }
 }
 
+function wittypi_pause_loop() {
+  ajax_status.open("GET", "cmd_func.php?cmd=pause_loop", true);
+  ajax_status.send();
+}
+
+function wittypi_reset() {
+  ajax_status.open("GET", "cmd_func.php?cmd=reset_wittypi", true);
+  ajax_status.send();
+}
+
 //
 // MJPEG
 //

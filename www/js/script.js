@@ -23,9 +23,7 @@ function closeFullscreen() {
 }
 
 function toggle_fullscreen(e) {
-
   var background = document.getElementById("background");
-
   if(!background) {
     background = document.createElement("div");
     background.id = "background";
@@ -42,7 +40,6 @@ function toggle_fullscreen(e) {
     background.style.display = "block";
     openFullscreen();
   }
-
 }
 
 function set_display(value) {
@@ -51,13 +48,12 @@ function set_display(value) {
    d.setTime(d.getTime() + (365*24*60*60*1000));
    var expires = "expires="+d.toUTCString();
    if (value == "SimpleOff") {
-	   val = "Off";
+     val = "Off";
    } else if (value == "SimpleOn") {
-	   val = "Full";
+     val = "Full";
    } else {
-	   val = value
+     val = value
    }
-   
    document.cookie="display_mode=" + val + "; " + expires;
    document.location.reload(true);
 }
@@ -66,7 +62,6 @@ function set_stream_mode(value) {
    var d = new Date();
    d.setTime(d.getTime() + (365*24*60*60*1000));
    var expires = "expires="+d.toUTCString();
-   
    if (value == "DefaultStream") {
       document.getElementById("toggle_stream").value = "MJPEG-Stream";
    } else {
@@ -106,7 +101,6 @@ function set_preset(value) {
   document.getElementById("image_width").value = values[4];
   document.getElementById("image_height").value = values[5];
   document.getElementById("fps_divider").value = values[6];
-  
   set_res();
 }
 
@@ -118,7 +112,6 @@ function set_res() {
 
 function set_ce() {
   send_cmd("ce " + document.getElementById("ce_en").value + " " + document.getElementById("ce_u").value + " " + document.getElementById("ce_v").value);
-
 }
 
 function set_preview() {
@@ -149,7 +142,7 @@ function set_ag() {
 function send_macroUpdate(i, macro) {
   var macrovalue = document.getElementById(macro).value;
   if(!document.getElementById(macro + "_chk").checked) {
-	  macrovalue = "-" + macrovalue;
+    macrovalue = "-" + macrovalue;
   }
   send_cmd("um " + i + " " + macrovalue);
 }
@@ -172,7 +165,7 @@ function hashHandler() {
 }
 
 //
-// System shutdow, reboot, settime
+// System shutdown, reboot, settime
 //
 function sys_shutdown() {
   ajax_status.open("GET", "cmd_func.php?cmd=shutdown", true);
@@ -187,19 +180,9 @@ function sys_reboot() {
 function sys_settime() {
   var strDate = document.getElementById("timestr").value;
   if(strDate.indexOf("-") < 0) {
-	  ajax_status.open("GET", "cmd_func.php?cmd=settime&timestr=" + document.getElementById("timestr").value, true);
-	  ajax_status.send();
+    ajax_status.open("GET", "cmd_func.php?cmd=settime&timestr=" + document.getElementById("timestr").value, true);
+    ajax_status.send();
   }
-}
-
-function wittypi_pause_loop() {
-  ajax_status.open("GET", "cmd_func.php?cmd=pause_loop", true);
-  ajax_status.send();
-}
-
-function wittypi_reset() {
-  ajax_status.open("GET", "cmd_func.php?cmd=reset_wittypi", true);
-  ajax_status.send();
 }
 
 //
@@ -208,7 +191,7 @@ function wittypi_reset() {
 var mjpeg_img;
 var halted = 0;
 var previous_halted = 99;
-var mjpeg_mode = 0;
+var mjpegmode = 0;
 var preview_delay = 0;
 var btn_class_p = "btn btn-primary"
 var btn_class_a = "btn btn-warning"
@@ -222,37 +205,28 @@ function error_img () {
   setTimeout("mjpeg_img.src = 'cam_pic.php?time=' + new Date().getTime();", 100);
 }
 
-function updatePreview(cycle)
-{
-   if (mjpegmode)
-   {
-      if (cycle !== undefined && cycle == true)
-      {
-         mjpeg_img.src = "/updating.jpg";
-         setTimeout("mjpeg_img.src = \"cam_pic_new.php?time=\" + new Date().getTime()  + \"&pDelay=\" + preview_delay;", 1000);
-         return;
+function updatePreview(cycle) {
+  if (mjpegmode) {
+    if (cycle !== undefined && cycle == true) {
+      mjpeg_img.src = "/updating.jpg";
+      setTimeout("mjpeg_img.src = \"cam_pic_new.php?time=\" + new Date().getTime()  + \"&pDelay=\" + preview_delay;", 1000);
+      return;
+    }
+    if (previous_halted != halted) {
+      if(!halted) {
+        mjpeg_img.src = "cam_pic_new.php?time=" + new Date().getTime() + "&pDelay=" + preview_delay;      
+      } else {
+        mjpeg_img.src = "/unavailable.jpg";
       }
-      
-      if (previous_halted != halted)
-      {
-         if(!halted)
-         {
-            mjpeg_img.src = "cam_pic_new.php?time=" + new Date().getTime() + "&pDelay=" + preview_delay;			
-         }
-         else
-         {
-            mjpeg_img.src = "/unavailable.jpg";
-         }
-      }
-	previous_halted = halted;
-   }
+    }
+    previous_halted = halted;
+  }
 }
 
 //
-// Ajax Status
+// Ajax Status (câmera)
 //
 var ajax_status;
-
 if(window.XMLHttpRequest) {
   ajax_status = new XMLHttpRequest();
 }
@@ -388,17 +362,15 @@ ajax_status.onreadystatechange = function() {
       document.getElementById("video_button").className = btn_class_p;
       document.getElementById("timelapse_button").className = btn_class_p;
       document.getElementById("md_button").className = btn_class_p;
-      document.getElementById("video_button").className = btn_class_p;
-      document.getElementById("timelapse_button").className = btn_class_p;
-      document.getElementById("md_button").className = btn_class_p;
       document.getElementById("image_button").className = btn_class_p;
       halted = 1;
     }
-    else if(ajax_status.responseText.substr(0,5) == "Error") alert("Error in RaspiMJPEG: " + ajax_status.responseText.substr(7) + "\nRestart RaspiMJPEG (./RPi_Cam_Web_Interface_Installer.sh start) or the whole RPi.");
+    else if(ajax_status.responseText.substr(0,5) == "Error") {
+      alert("Error in RaspiMJPEG: " + ajax_status.responseText.substr(7) + "\nRestart RaspiMJPEG (./RPi_Cam_Web_Interface_Installer.sh start) or the whole RPi.");
+    }
 
-	updatePreview();
+    updatePreview();
     reload_ajax(ajax_status.responseText);
-
   }
 }
 
@@ -411,7 +383,6 @@ function reload_ajax (last) {
 // Ajax Commands
 //
 var ajax_cmd;
-
 if(window.XMLHttpRequest) {
   ajax_cmd = new XMLHttpRequest();
 }
@@ -435,7 +406,7 @@ function update_preview_delay() {
 }
 
 //
-// Init
+// Init (câmera)
 //
 function init(mjpeg, video_fps, divider) {
   mjpeg_img = document.getElementById("mjpeg_dest");
@@ -445,10 +416,159 @@ function init(mjpeg, video_fps, divider) {
   if (mjpeg) {
     mjpegmode = 1;
   } else {
-     mjpegmode = 0;
-     mjpeg_img.onload = reload_img;
-     mjpeg_img.onerror = error_img;
-     reload_img();
+    mjpegmode = 0;
+    mjpeg_img.onload = reload_img;
+    mjpeg_img.onerror = error_img;
+    reload_img();
   }
   reload_ajax("");
 }
+
+// ===================== WittyPi (XHR separado) =====================
+function xhrGet(url, callback) {
+  var x = new XMLHttpRequest();
+  x.open("GET", url, true);
+  x.onreadystatechange = function () {
+    if (x.readyState === 4) callback(x.status, x.responseText);
+  };
+  x.send();
+}
+
+function xhrPost(url, body, callback) {
+  var x = new XMLHttpRequest();
+  x.open("POST", url, true);
+  x.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  x.onreadystatechange = function () {
+    if (x.readyState === 4) callback(x.status, x.responseText);
+  };
+  x.send(body);
+}
+
+// Inicialização da página de WittyPi
+function wittypi_init() {
+  load_presets(function () {
+    load_schedule();
+  });
+
+  var ta = document.getElementById("schedule_text");
+  if (ta) {
+    ta.removeAttribute("readonly");
+    ta.addEventListener("input", function () {
+      var sel = document.getElementById("preset");
+      if (sel && sel.value !== "custom") {
+        sel.value = "custom";
+      }
+    });
+  }
+}
+
+// Ações Pause/Reset
+function wittypi_pause_loop() {
+  xhrGet("cmd_func.php?cmd=pause_loop", function (status, resp) {
+    alert("Pause Loop:\n" + (resp || ("HTTP " + status)));
+  });
+}
+function wittypi_reset() {
+  xhrGet("cmd_func.php?cmd=reset_wittypi", function (status, resp) {
+    alert("Reset WittyPi:\n" + (resp || ("HTTP " + status)));
+  });
+}
+
+// Presets dinâmicos
+function load_presets(doneCb) {
+  xhrGet("cmd_func.php?cmd=list_presets", function (status, resp) {
+    try {
+      var sel = document.getElementById("preset");
+      if (!sel) { if (doneCb) doneCb(); return; }
+
+      // limpa opções antigas (mantém custom)
+      for (var i = sel.options.length - 1; i >= 0; i--) {
+        if (sel.options[i].value !== "custom") sel.remove(i);
+      }
+
+      if (status === 200) {
+        var list = JSON.parse(resp || "[]");
+        list.forEach(function (p) {
+          var opt = document.createElement("option");
+          opt.value = p.file;    // nome do arquivo .wpi
+          opt.text  = p.label;   // rótulo amigável
+          sel.appendChild(opt);
+        });
+      }
+    } catch (e) {
+      console.error("load_presets parse error:", e, resp);
+    } finally {
+      if (doneCb) doneCb();
+    }
+  });
+}
+
+function on_preset_change(value) {
+  var textarea = document.getElementById("schedule_text");
+  if (!textarea) return;
+
+  if (value === "custom") {
+    textarea.removeAttribute("readonly");
+    return;
+  }
+
+  xhrGet("cmd_func.php?cmd=get_preset&file=" + encodeURIComponent(value), function (status, resp) {
+    if (status === 200) {
+      textarea.value = resp;
+      textarea.removeAttribute("readonly");
+    } else {
+      alert("Erro ao carregar preset (" + value + "):\nHTTP " + status);
+    }
+  });
+}
+
+// Carregar/Salvar schedule.wpi
+function load_schedule() {
+  xhrGet("cmd_func.php?cmd=get_schedule", function (status, resp) {
+    var ta = document.getElementById("schedule_text");
+    var sel = document.getElementById("preset");
+    if (!ta) return;
+
+    if (status === 200) {
+      if (resp === "__NO_SCHEDULE__") {
+        // Primeiro uso: guia o usuário e fornece um template
+        var template =
+          "# No schedule file found yet.\n" +
+          "# Define your schedule below and click 'Save Schedule' to create it.\n" +
+          "# Example:\n" +
+          "BEGIN 2025-01-01 00:00:00\n" +
+          "END   2025-12-31 23:59:59\n" +
+          "ON M5\n" +
+          "OFF M15\n";
+        ta.value = template;
+        if (sel) sel.value = "custom";
+        ta.removeAttribute("readonly");
+        alert("No existing schedule file was found.\nEdit the text (Custom) and click Save to create /home/fish_cam/wittypi/schedule.wpi.");
+      } else {
+        ta.value = resp;
+        if (sel) sel.value = "custom"; // sempre custom após carregar do arquivo
+        ta.removeAttribute("readonly");
+      }
+    } else {
+      ta.value = "❌ Failed to load schedule (HTTP " + status + ")";
+      if (sel) sel.value = "custom";
+      ta.removeAttribute("readonly");
+    }
+  });
+}
+
+function save_schedule() {
+  var text = document.getElementById("schedule_text").value;
+  xhrPost("cmd_func.php?cmd=save_schedule", "data=" + encodeURIComponent(text), function (status, resp) {
+    alert("Save Schedule:\n" + (resp || ("HTTP " + status)));
+    alert("⚠️ To init the ON-OFF cycles, click on 'Reset System'.");
+    load_schedule();
+  });
+}
+
+// Alerta quando a página carrega, mas só na power_schedule.php
+document.addEventListener("DOMContentLoaded", function () {
+  if (window.location.pathname.endsWith("power_schedule.php")) {
+    alert("⚠️ Before configuring the schedule, click 'Pause Loop' to prevent the system from shutting down during setup.");
+  }
+});

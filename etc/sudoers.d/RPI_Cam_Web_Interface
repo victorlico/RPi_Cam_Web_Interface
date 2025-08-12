@@ -3,3 +3,20 @@ www-data ALL=/sbin/shutdown
 www-data ALL=NOPASSWD: /sbin/shutdown
 www-data ALL=/bin/date
 www-data ALL=NOPASSWD: /bin/date
+www-data ALL=/usr/bin/arecord
+www-data ALL=NOPASSWD: /usr/bin/arecord
+www-data ALL=/usr/bin/arecord
+www-data ALL=NOPASSWD: /usr/bin/arecord
+www-data ALL=/usr/bin/aplay
+www-data ALL=NOPASSWD: /usr/bin/aplay
+www-data ALL=/usr/bin/pkill
+www-data ALL=NOPASSWD: /usr/bin/pkill
+www-data ALL=/usr/bin/kill
+www-data ALL=NOPASSWD: /usr/bin/kill
+www-data ALL=/usr/bin/lame
+www-data ALL=NOPASSWD: /usr/bin/lame
+
+# allow Witty Pi scripts via web server
+www-data ALL=NOPASSWD: /var/www/html/macros/wittypi_pause_loop
+www-data ALL=NOPASSWD: /var/www/html/macros/wittypi_reset
+www-data ALL=NOPASSWD: /var/www/html/macros/wittypi_write_schedule

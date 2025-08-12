@@ -1,0 +1,45 @@
+#!/bin/bash
+# Schedules a wake in +1 minute and performs a clean shutdown (generic user-safe)
+
+set -eo pipefail   # <- sem -u
+
+resolve_wittypi_dir() {
+  if [ -n "${WITTYPI_DIR:-}" ] && [ -f "$WITTYPI_DIR/utilities.sh" ]; then
+    echo "$WITTYPI_DIR"; return 0
+  fi
+  for d in /home/*/wittypi /root/wittypi; do
+    [ -f "$d/utilities.sh" ] && { echo "$d"; return 0; }
+  done
+  return 1
+}
+
+WITTYPI_DIR="$(resolve_wittypi_dir || true)"
+if [ -z "${WITTYPI_DIR:-}" ]; then
+  echo "❌ Could not locate utilities.sh under /home/*/wittypi or /root/wittypi. Set WITTYPI_DIR env var if installed elsewhere."
+  exit 1
+fi
+
+DAY=$(date -d "+1 minute" "+%d")
+HOUR=$(date -d "+1 minute" "+%H")
+MINUTE=$(date -d "+1 minute" "+%M")
+SECOND=$(date -d "+1 minute" "+%S")
+
+TEMP_SCRIPT="/tmp/set_wittypi_startup.sh"
+cat <<EOT > "$TEMP_SCRIPT"
+#!/bin/bash
+set -e
+# shellcheck source=/dev/null
+source "$WITTYPI_DIR/utilities.sh"
+clear_startup_time
+clear_shutdown_time
+clear_alarm_flags
+set_startup_time $DAY $HOUR $MINUTE $SECOND
+EOT
+
+chmod +x "$TEMP_SCRIPT"
+sudo bash "$TEMP_SCRIPT"
+rm -f "$TEMP_SCRIPT"
+
+echo "⚠️ Shutting down... system will power back on in 1 minute."
+sleep 2
+sudo shutdown now

@@ -1,0 +1,30 @@
+#!/bin/bash
+# Clears all scheduled alarms to stop the Witty Pi ON/OFF cycle (generic user-safe)
+
+set -eo pipefail   # <- sem -u
+
+# Resolve WITTYPI_DIR automatically if not provided via env
+resolve_wittypi_dir() {
+  if [ -n "${WITTYPI_DIR:-}" ] && [ -f "$WITTYPI_DIR/utilities.sh" ]; then
+    echo "$WITTYPI_DIR"; return 0
+  fi
+  for d in /home/*/wittypi /root/wittypi; do
+    [ -f "$d/utilities.sh" ] && { echo "$d"; return 0; }
+  done
+  return 1
+}
+
+WITTYPI_DIR="$(resolve_wittypi_dir || true)"
+if [ -z "${WITTYPI_DIR:-}" ]; then
+  echo "❌ Could not locate utilities.sh under /home/*/wittypi or /root/wittypi. Set WITTYPI_DIR env var if installed elsewhere."
+  exit 1
+fi
+
+# shellcheck source=/dev/null
+source "$WITTYPI_DIR/utilities.sh"
+
+clear_startup_time
+clear_shutdown_time
+clear_alarm_flags
+
+echo "✅ All Witty Pi alarms cleared. ON/OFF loop paused."

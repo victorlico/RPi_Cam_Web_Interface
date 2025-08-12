@@ -1,0 +1,54 @@
+#!/bin/bash
+# Write stdin to Witty Pi's schedule.wpi safely, regardless of the Linux username.
+
+set -eo pipefail
+
+# Try to resolve the Witty Pi install directory if not provided via env.
+resolve_wittypi_dir() {
+  if [ -n "${WITTYPI_DIR:-}" ] && [ -d "$WITTYPI_DIR" ]; then
+    echo "$WITTYPI_DIR"; return 0
+  fi
+  # Prefer a directory that actually contains schedule.wpi; fall back to one with utilities.sh
+  for d in /home/*/wittypi /root/wittypi; do
+    [ -f "$d/schedule.wpi" ] && { echo "$d"; return 0; }
+  done
+  for d in /home/*/wittypi /root/wittypi; do
+    [ -f "$d/utilities.sh" ] && { echo "$d"; return 0; }
+  done
+  return 1
+}
+
+WITTYPI_DIR="$(resolve_wittypi_dir || true)"
+if [ -z "${WITTYPI_DIR:-}" ]; then
+  echo "❌ Could not locate ~/wittypi. Set WITTYPI_DIR env var or create /home/<user>/wittypi." >&2
+  exit 1
+fi
+
+TARGET="$WITTYPI_DIR/schedule.wpi"
+DIR="$(dirname "$TARGET")"
+
+# Ensure target directory is writable
+if [ ! -d "$DIR" ]; then
+  echo "❌ Directory does not exist: $DIR" >&2
+  exit 1
+fi
+if [ ! -w "$DIR" ]; then
+  echo "❌ Directory is not writable: $DIR" >&2
+  exit 1
+fi
+
+# Write to a temp file in the same dir, then atomically mv into place
+TMP="$(mktemp "$DIR/.schedule.wpi.XXXXXX")"
+cat > "$TMP"
+
+# Preserve ownership from existing schedule if present; else from the directory
+if [ -f "$TARGET" ]; then
+  /bin/chown --reference="$TARGET" "$TMP" 2>/dev/null || true
+else
+  /bin/chown --reference="$DIR" "$TMP" 2>/dev/null || true
+fi
+
+/bin/mv -f "$TMP" "$TARGET"
+/bin/chmod 0644 "$TARGET"
+
+echo "OK"

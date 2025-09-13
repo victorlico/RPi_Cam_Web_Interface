@@ -85,6 +85,17 @@ sudo chmod +x /usr/local/bin/wittypi_reset
 ```
 
 ---
+### 3. Config `wittypi/beforeShutdown.sh' file to pause video before shutdown
+
+Include in the file:
+
+```bash
+echo "ca 0" > /var/www/html/FIFO
+sleep 10   # wait 10s for recording to end
+```
+
+TODO: avaliar se seria bom o comando de gravar apos ligar, ou se o gravar audomatico com o cortar do video apos 10min, fica melhor dentro da interface mesmo
+---
 
 ## 🚀 Usage
 

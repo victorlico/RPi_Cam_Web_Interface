@@ -6,4 +6,4 @@ filename_no_ext="${filename%.mp4}" # Remove a extensão .mp4
 filename_no_ext="au${filename_no_ext:2}" # Substitui "vi" por "au"
 
 new_filepath="$filepath/$filename_no_ext.wav" # Novo caminho do arquivo
-arecord -f S16_LE -r 48000 -c 2 $new_filepath
+arecord -D plughw:1,0 -f S16_LE -r 48000 -c 2 $new_filepath

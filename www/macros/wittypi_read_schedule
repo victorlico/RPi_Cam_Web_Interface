@@ -1,0 +1,30 @@
+#!/bin/bash
+set -eo pipefail
+
+# 1) Se WITTYPI_HOME vier definido e contiver o arquivo, usa ele
+if [[ -n "${WITTYPI_HOME:-}" && -f "${WITTYPI_HOME}/schedule.wpi" ]]; then
+  cat "${WITTYPI_HOME}/schedule.wpi"
+  exit 0
+fi
+
+# 2) Procura em /home/*/wittypi
+TARGET=""
+for d in /home/*/wittypi; do
+  [[ -d "$d" ]] || continue
+  if [[ -f "$d/schedule.wpi" ]]; then
+    TARGET="$d/schedule.wpi"
+    break
+  fi
+done
+
+# 3) Último fallback: /home/pi/wittypi
+if [[ -z "$TARGET" && -f /home/pi/wittypi/schedule.wpi ]]; then
+  TARGET="/home/pi/wittypi/schedule.wpi"
+fi
+
+if [[ -z "${TARGET}" ]]; then
+  echo "⚠️ schedule.wpi not found. Use Custom + Save to create it." 
+  exit 0
+fi
+
+cat "$TARGET"

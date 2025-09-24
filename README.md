@@ -47,6 +47,6 @@ sleep 10   # wait 10s for recording to end
 TODO: avaliar se seria bom o comando de gravar apos ligar, ou se o gravar audomatico com o cortar do video apos 10min, fica melhor dentro da interface mesmo
 ---
 
-
+Warning: use bash to run .sh files (install, remove, update...), not sh. 
 
 © 2025 – For use with Witty Pi 4 Mini and Raspberry Pi OS 

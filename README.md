@@ -34,57 +34,7 @@ These scripts allow you to manage Witty Pi's ON/OFF scheduling system manually a
 
 Run the following commands on your Raspberry Pi to create and install the scripts:
 
-### 1. Install `wittypi_pause_loop`
 
-```bash
-sudo tee /usr/local/bin/wittypi_pause_loop > /dev/null <<'EOF'
-#!/bin/bash
-source ~/wittypi/utilities.sh
-clear_startup_time
-clear_shutdown_time
-clear_alarm_flags
-echo "✅ All Witty Pi alarms cleared. ON/OFF loop paused."
-EOF
-
-sudo chmod +x /usr/local/bin/wittypi_pause_loop
-```
-
----
-
-### 2. Install `wittypi_reset`
-
-```bash
-sudo tee /usr/local/bin/wittypi_reset > /dev/null <<'EOF'
-#!/bin/bash
-WITTYPI_DIR=~/wittypi
-DAY=$(date -d "+1 minute" "+%d")
-HOUR=$(date -d "+1 minute" "+%H")
-MINUTE=$(date -d "+1 minute" "+%M")
-SECOND=$(date -d "+1 minute" "+%S")
-
-TEMP_SCRIPT="/tmp/set_wittypi_startup.sh"
-cat <<EOT > "$TEMP_SCRIPT"
-#!/bin/bash
-source "$WITTYPI_DIR/utilities.sh"
-clear_startup_time
-clear_shutdown_time
-clear_alarm_flags
-set_startup_time $DAY $HOUR $MINUTE $SECOND
-EOT
-
-chmod +x "$TEMP_SCRIPT"
-sudo bash "$TEMP_SCRIPT"
-rm "$TEMP_SCRIPT"
-
-echo "⚠️ Shutting down... system will power back on in 1 minute."
-sleep 2
-sudo shutdown now
-EOF
-
-sudo chmod +x /usr/local/bin/wittypi_reset
-```
-
----
 ### 3. Config `wittypi/beforeShutdown.sh' file to pause video before shutdown
 
 Include in the file:
@@ -97,43 +47,6 @@ sleep 10   # wait 10s for recording to end
 TODO: avaliar se seria bom o comando de gravar apos ligar, ou se o gravar audomatico com o cortar do video apos 10min, fica melhor dentro da interface mesmo
 ---
 
-## 🚀 Usage
 
-### 🔄 Pause any scheduled shutdown/startup:
-
-```bash
-wittypi_pause_loop
-```
-
-This stops Witty Pi's current ON/OFF cycle immediately without rebooting.
-
----
-
-### 🔁 Reboot with auto power-on in 1 minute:
-
-```bash
-wittypi_reset
-```
-
-This clears any existing alarms, sets the next startup to 1 minute from now, and shuts down the Raspberry Pi.
-
----
-
-## ✅ Requirements
-
-- Witty Pi installed and configured in `~/wittypi`
-- `utilities.sh` must be present in `~/wittypi`
-- `i2c` interface enabled and working
-- Root privileges to access I2C and shutdown
-
----
-
-## 📌 Notes
-
-- You can integrate these commands into other scripts, system services, or remote control interfaces.
-- Both scripts are independent and can be called any time.
-- You can safely extend them with delay parameters or logging.
-
----
 
 © 2025 – For use with Witty Pi 4 Mini and Raspberry Pi OS 

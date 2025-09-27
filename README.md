@@ -49,4 +49,75 @@ TODO: avaliar se seria bom o comando de gravar apos ligar, ou se o gravar audoma
 
 Warning: use bash to run .sh files (install, remove, update...), not sh. 
 
+### Configure External Media Storage (USB Drive - FAT32)
+
+To avoid filling up the Raspberry Pi microSD card, you can configure the RPi-Cam-Web-Interface to save recordings directly to an external USB drive (pendrive or HDD).  
+
+This setup uses **FAT32** so the drive can be easily accessed on Windows.
+
+
+#### 1. Use a fixed label (recommended)
+Format the USB drive as **FAT32** and give it a label (e.g., `fischcam`).  
+Any USB drive formatted as FAT32 with this label will work.
+
+---
+
+#### 2. Identify the USB drive
+Plug in the USB drive and check its information:
+
+```bash
+lsblk -f
+# or
+sudo blkid
+```
+
+You will see something like:
+
+```
+/dev/sda1: LABEL="fischcam" UUID="12AB-34CD" TYPE="vfat" ...
+```
+
+Take note of the **LABEL** (volume name) or the **UUID**.
+
+---
+
+#### 3. Edit `/etc/fstab`
+Open the file:
+
+```bash
+sudo nano /etc/fstab
+```
+
+Add one of the following lines:
+
+**Using LABEL (recommended for interchangeable drives):**
+```
+LABEL=fischcam  /var/www/html/media  vfat  defaults,uid=www-data,gid=www-data,fmask=113,dmask=002,nofail  0  0
+```
+
+
+Options explained:
+- `vfat` → FAT32 filesystem type  
+- `uid=www-data,gid=www-data` → allows the web server to write files  
+- `fmask=113,dmask=002` → ensures files are created with `rw-rw-r--` permissions  
+- `nofail` → prevents boot errors if the USB drive is missing  
+
+---
+
+#### 4. Test the mount
+Apply the changes without reboot:
+
+```bash
+sudo mount -a
+df -h | grep media
+ls -la /var/www/html/media
+```
+
+You should now see the USB drive mounted as the media folder.
+
+Reboot the system to apply changes.
+
+---
+
+
 © 2025 – For use with Witty Pi 4 Mini and Raspberry Pi OS 

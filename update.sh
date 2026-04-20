@@ -31,52 +31,85 @@
 # Additions by btidey, miraaz, gigpi
 # Split up and refactored by Bob Tidey 
 
-#Debug enable next 3 lines
+
+# Debug (gera update.txt)
 exec 5> update.txt
 BASH_XTRACEFD="5"
 set -x
 
-cd $(dirname $(readlink -f $0))
+# Sempre executar a partir do diretório do script
+cd "$(dirname "$(readlink -f "$0")")"
 
 # Terminal colors
 color_red="tput setaf 1"
 color_green="tput setaf 2"
 color_reset="tput sgr0"
 
-
-fn_abort()
-{
-    $color_red; echo >&2 '
+fn_abort() {
+    $color_red
+    echo >&2 '
 ***************
 *** ABORTED ***
 ***************
 '
-    echo "An error occurred. Exiting..." >&2; $color_reset
+    echo "An error occurred. Exiting..." >&2
+    $color_reset
     exit 1
 }
 
-   trap 'fn_abort' 0
-   set -e
-   remote=$(
-     git ls-remote -h origin master |
-     awk '{print $1}'
-   )
-   local=$(git rev-parse HEAD)
-   printf "Local : %s\nRemote: %s\n" $local $remote
-   if [[ $local == $remote ]]; then
-      dialog --title 'Update message' --infobox 'Commits match. Nothing update.' 4 35 ; sleep 2
-   else
-      dialog --title 'Update message' --infobox "Commits don't match. We update." 4 35 ; sleep 2
-      git fetch origin master
-      git reset --hard origin/master
-      chmod u+x *.sh
-   fi
-   trap : 0
-   dialog --title 'Update message' --infobox 'Update finished.' 4 20 ; sleep 2
-   
-   # We call updated install script passing through any quiet parameter
-   if [ $# -eq 0 ]; then 
-      ./install.sh
-   else
-      ./install.sh $1
-   fi
+trap 'fn_abort' 0
+set -e
+
+# -------------------------------------------------------------------
+# Detecta branch atual
+# -------------------------------------------------------------------
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+
+echo "Current branch: $current_branch"
+
+# -------------------------------------------------------------------
+# Garante que a branch existe no remoto
+# -------------------------------------------------------------------
+if ! git show-ref --verify --quiet "refs/remotes/origin/$current_branch"; then
+    echo "Remote branch origin/$current_branch does not exist"
+    exit 1
+fi
+
+# -------------------------------------------------------------------
+# Compara HEAD local com remoto
+# -------------------------------------------------------------------
+git fetch origin "$current_branch"
+
+local_commit="$(git rev-parse HEAD)"
+remote_commit="$(git rev-parse "origin/$current_branch")"
+
+printf "Branch : %s\nLocal  : %s\nRemote : %s\n" \
+  "$current_branch" "$local_commit" "$remote_commit"
+
+if [[ "$local_commit" == "$remote_commit" ]]; then
+    dialog --title 'Update message' \
+           --infobox "Branch '$current_branch' is already up to date." 4 55
+    sleep 2
+else
+    dialog --title 'Update message' \
+           --infobox "Updating branch '$current_branch'..." 4 55
+    sleep 2
+
+    # Atualização "appliance-style" (sem commits locais)
+    git reset --hard "origin/$current_branch"
+    chmod u+x *.sh
+fi
+
+trap : 0
+
+dialog --title 'Update message' --infobox 'Update finished.' 4 30
+sleep 2
+
+# -------------------------------------------------------------------
+# Executa o install.sh atualizado
+# -------------------------------------------------------------------
+if [ $# -eq 0 ]; then
+    ./install.sh
+else
+    ./install.sh "$1"
+fi

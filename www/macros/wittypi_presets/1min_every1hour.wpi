@@ -1,5 +1,5 @@
 # record 1 minute (+30s for initialization) of video every 1 hour (all cicle)
 BEGIN 2016-08-05 00:00:00
-END   2025-07-31 23:59:59
+END   2050-07-31 23:59:59
 ON    M1 S30
 OFF   M58 S30

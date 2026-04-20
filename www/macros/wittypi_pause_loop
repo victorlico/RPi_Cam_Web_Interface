@@ -6,11 +6,18 @@ set -eo pipefail   # <- sem -u
 # Resolve WITTYPI_DIR automatically if not provided via env
 resolve_wittypi_dir() {
   if [ -n "${WITTYPI_DIR:-}" ] && [ -f "$WITTYPI_DIR/utilities.sh" ]; then
-    echo "$WITTYPI_DIR"; return 0
+    echo "$WITTYPI_DIR"
+    return 0
   fi
+
+  # Probe common locations
   for d in /home/*/wittypi /root/wittypi; do
-    [ -f "$d/utilities.sh" ] && { echo "$d"; return 0; }
+    if [ -f "$d/utilities.sh" ]; then
+      echo "$d"
+      return 0
+    fi
   done
+
   return 1
 }
 

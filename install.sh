@@ -355,6 +355,9 @@ sudo chmod 755 /etc/rc.local
 fn_stop
 
 sudo mkdir -p /var/www$rpicamdir/media
+sudo mkdir -p /var/www$rpicamdir/h264
+sudo chown www-data:www-data /var/www$rpicamdir/h264
+
 #move old material if changing from a different install folder
 if [ ! "$rpicamdir" == "$rpicamdirold" ]; then
    if [ -e /var/www$rpicamdirold/index.php ]; then

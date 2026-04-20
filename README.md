@@ -44,6 +44,13 @@ echo "ca 0" > /var/www/html/FIFO
 sleep 10   # wait 10s for recording to end
 ```
 
+### 4. Config `wittypi/afterStartup.sh' file to pause video before shutdown
+
+Include in the file:
+```bash
+sleep 15
+/bin/echo "ca 1" > /var/www/html/FIFO
+```
 TODO: avaliar se seria bom o comando de gravar apos ligar, ou se o gravar audomatico com o cortar do video apos 10min, fica melhor dentro da interface mesmo
 ---
 

@@ -32,13 +32,13 @@ function mainHTML() {
         <?php if ($debugString) echo $debugString . "<br>"; ?>
         
         <div style="margin-bottom:10px;">
-            <button class="btn btn-primary" type="button" onclick="wittypi_pause_loop()">Pause Loop</button>
-            <button class="btn btn-warning" type="button" onclick="wittypi_reset()">Reset System</button>
+            <button class="btn btn-primary" type="button" onclick="wittypi_pause_loop()">1. Pause Loop</button>
+            <button class="btn btn-warning" type="button" onclick="wittypi_reset()">4.Reset System</button>
         </div>
 
         <hr>
 
-        <h3>📄 Edit Schedule</h3>
+        <h3>📄 2. Edit Schedule</h3>
 
         <div style="max-width:720px;margin:0 auto;">
             <div class="form-group">
@@ -52,7 +52,7 @@ function mainHTML() {
             <textarea id="schedule_text" rows="12" class="form-control" placeholder="Loading schedule..."></textarea>
 
             <div style="margin-top:10px;">
-                <button class="btn btn-success" onclick="save_schedule()">💾 Save Schedule</button>
+                <button class="btn btn-success" onclick="save_schedule()">💾 3. Save Schedule</button>
                 <button class="btn btn-info" onclick="load_schedule()">↻ Reload Schedule</button>
             </div>
 

@@ -303,7 +303,7 @@ function init_power_schedule_page() {
   // alerta para pausar loop (só nesta página)
   if (window.location.pathname.match(/power_schedule\.php$/)) {
     setTimeout(function () {
-      alert("Heads up!\n\nTo avoid auto-shutdown while editing, click 'Pause Loop' first.\nAfter saving changes, click 'Reset System' to apply.");
+      alert("Heads up!\n\nTo avoid auto-shutdown while editing, click 'Pause Loop' first.\nConfig Schedule.\nSave Schedule.\nReset System to apply.");
     }, 300);
   }
   // carrega presets e conteúdo do schedule

@@ -1,6 +1,6 @@
 # Twilight hour (18 to 20) - on by 2h, off by 22h
 # - Adjust the begin and end hour - to correct init in Twilight
 BEGIN 2025-08-17 18:00:00  
-END   2050-12-31 20:00:00
+END   2035-12-31 20:00:00
 ON    H2
 OFF   H22

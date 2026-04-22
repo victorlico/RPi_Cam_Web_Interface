@@ -333,7 +333,7 @@
                            <td>Resolutions:</td>
                            <td>Load Preset: <select onchange="set_preset(this.value)">
 								<?php if(!file_exists('uPresets.html')) : ?>
-                                 <option value="1920 1080 25 25 2592 1944 1">Select option...</option>
+                                 <option value="1296 972 25 25 2592 1944 1">Select option...</option>
                                  <option value="1920 1080 25 25 2592 1944 1">Full HD 1080p 16:9</option>
                                  <option value="1280 0720 25 25 2592 1944 1">HD-ready 720p 16:9</option>
                                  <option value="1296 972 25 25 2592 1944 1">Max View 972p 4:3</option>
@@ -362,7 +362,7 @@
                            <td><?php makeInput('tl_interval', 4, null, 'number'); ?>s <input type="button" value="OK" onclick="send_cmd('tv ' + 10 * document.getElementById('tl_interval').value)"></td>
                         </tr>
                         <tr>
-                           <td>Video Split (seconds, default 0=off):</td>
+                           <td>Video Split (seconds, default 1800, 0=off):</td>
                            <td><?php makeInput('video_split', 6, null, 'number'); ?>s <input type="button" value="OK" onclick="send_cmd('vi ' + document.getElementById('video_split').value)"></td>
                         </tr>
                         <tr>

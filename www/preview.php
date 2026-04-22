@@ -13,7 +13,7 @@
    define('BTN_DELETESEL_CONFIRM', 'Are you sure you want to delete selected items?');
    define('BTN_SELECTALL', 'Select All');
    define('BTN_SELECTNONE', 'Deselect');
-   define('BTN_GETZIP', 'Get Zip');
+   define('BTN_GETZIP', 'Download selected');
    define('BTN_LOCKSEL', 'Lock Sel');
    define('BTN_UNLOCKSEL', 'Unlock Selected');
    define('BTN_UPDATESIZEORDER', 'Update');

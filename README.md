@@ -1,63 +1,101 @@
-# Fishcam - web-based video and audio record system for fish monitor
-Web based interface for controlling the Raspberry Pi Camera, includes motion detection, time lapse, and image and video recording (with separated audio file).
+# Fishcam  
+**Web-based video and audio recording system for fish monitoring**
 
-Current version 6.6.26
-All information on this project can be found here: http://www.raspberrypi.org/forums/viewtopic.php?f=43&t=63276
+Fishcam is a web-based interface built on top of the RPi Cam Web Interface, designed for continuous video capture with synchronized (separate) audio recording. It supports autonomous operation using Witty Pi for scheduled power cycling.
 
-The wiki page can be found here:
+---
 
-http://elinux.org/RPi-Cam-Web-Interface
+## 📦 Based on
 
-This includes the installation instructions at the top and full technical details.
-For latest change details see:
+This project extends the original:
 
-https://github.com/silvanmelchior/RPi_Cam_Web_Interface/commits/master
-  
+- RPi Cam Web Interface  
+  http://www.raspberrypi.org/forums/viewtopic.php?f=43&t=63276  
 
-## 🔧 What You Get
+- Wiki (installation and technical details):  
+  http://elinux.org/RPi-Cam-Web-Interface  
+
+- Original repository:  
+  https://github.com/silvanmelchior/RPi_Cam_Web_Interface  
+
+---
+
+## 🔧 Features
+
+### Core functionality
+- Web-based control interface
+- Video recording with separate audio file
+- Motion detection and time-lapse (from base project)
+- Automatic start/stop recording based on power events (Witty Pi)
+
+### Custom macros
 
 - `macros/wittypi_pause_loop`  
-  ⛔ Immediately cancels any scheduled shutdown or startup in Witty Pi's memory, stopping the ON/OFF loop **without reboot**.
+  ⛔ Cancels any scheduled ON/OFF loop in Witty Pi memory without reboot.
 
 - `macros/wittypi_reset`  
-  🔁 Schedules a safe shutdown now and automatically powers the system back on in **1 minute** using Witty Pi.
+  🔁 Performs a safe shutdown and schedules automatic power-on in **1 minute**.
 
-- `macros/wittypi_read_schedule`   
-  Reads the current system schedule `wittypi/schedule.wpi`.
+- `macros/wittypi_read_schedule`  
+  📄 Reads the current schedule (`wittypi/schedule.wpi`).
 
-- `macros/start_vid`   
-  Init audio record after video recording start. 
+- `macros/start_vid`  
+  🎙 Starts audio recording when video recording begins.
 
-- `macros/end_vid`   
-Stop audio record. 
+- `macros/end_vid`  
+  ⏹ Stops audio recording.
 
-- `macros/end_box`   
-Converts video to .mp4. 
+- `macros/end_box`  
+  🎞 Converts recorded video to `.mp4`.
+
 ---
 
 ## 📥 Installation
 
-Run the following commands on your Raspberry Pi to create and install the scripts:
+Run the following command on your Raspberry Pi:
 
 ```bash
 ./install_and_config.sh
 ```
 
-Warning: use bash to run .sh files (install, remove, update...), not sh. 
+⚠️ **Important:** Always use `bash` to run shell scripts (`install`, `remove`, `update`, etc.), not `sh`.
 
-## Usage
+---
 
-### External storage 
-To improve storage space, use a external drive formated as `FAT32` and named `fishcam`- the system will automatic identify after connection and config the new storage. 
+## Update
 
-To change or connect a new storage, please reboot the system. 
+The system can be updated in case of a new version by executing: 
+
+```bash
+./update.sh
+```
+Reboot the system, them test it.
+
+## 🚀 Usage
+
+### External Storage
+
+To increase storage capacity, use an external USB drive formatted as **FAT32** and labeled: `fishcam`
 
 
-### System access
+The system will automatically detect the drive during boot and mount it to `/var/www/html/media`.
 
-To access the system, power on the device and wait a few minutes. 
+⚠️ **Notes**
+- Reboot the system after connecting a new storage device.
+- Do not remove the drive while the system is powered on.
 
-After that, connect in the same Wifi, and enter the url [http://192.168.15.25/html/](http://192.168.15.25/html/).
+---
+
+### System Access
+
+1. Power on the device  
+2. Wait a few minutes for initialization  
+3. Connect to the same Wi-Fi network  
+4. Open the following URL in a browser:
+
+```text
+http://192.168.15.25/html/
+```
 
 The preview page will appear.
 
@@ -65,7 +103,7 @@ The preview page will appear.
   <img src="img_md/preview_page.png" width="400px" alt="Preview page" />
 </div>
 
-When the system is recording a video, the button `record video start` changes to `record video stop` and changes color.
+When the system is recording, the `record video start` button changes to `record video stop` and its color also changes.
 
 <div align="center">
   <img src="img_md/recording_button.png" width="250px" alt="Recording button state" />
@@ -73,42 +111,82 @@ When the system is recording a video, the button `record video start` changes to
 
 ---
 
-#### Power configuration - WittyPi
+## 🔋 Power Scheduling (Witty Pi)
 
-By clicking on the `Configure power schedule` button, the power configuration page opens. Here it is possible to configure how the system will behave in time. 
+Click on **`Configure power schedule`** to open the power management page.
 
-Important: After POWER-UP a new video recording starts. Before POWER-DOWN a the video recording stops. 
+This page allows you to configure when the system powers on and off.
 
 <div align="center">
   <img src="img_md/power_page.png" width="250px" alt="Power schedule page" />
 </div>
 
-Following the steps:
-1. Click on `Pause loop` button.
-2. Choose the desired schedule on the presets list or write a custom made (see [WittyPi generator](https://www.uugear.com/app/wittypi-scriptgen/)).
-3. Save the schedule.
-4. Reboot the system and wait to reset the recording flux.
+### Behavior
 
-INFO: The maximum video duration should be 30 min (video_split default = 1800s), because system limits. So, bigger recording time will split the video.
+- After **POWER-UP**, a new video recording starts automatically
+- Before **POWER-DOWN**, the current video recording is stopped safely
+
+### Configuration Steps
+
+1. Click `Pause loop` to stop all active power timers  
+2. Select a preset schedule or write a custom one  
+   - You can use the [Witty Pi Script Generator](https://www.uugear.com/app/wittypi-scriptgen/)  
+3. Save the schedule  
+4. Reboot the system and wait for the recording workflow to restart properly  
+
+### Recording Limit
+
+The maximum continuous video duration should be **30 minutes** by default (`video_split = 1800s`).
+
+If a recording exceeds this limit, the system will automatically split it into multiple video files.
 
 ---
-#### Download data
 
-There are two ways to extract the data.
+## 📤 Downloading Data
 
-1. By on the `Download videos and images` button:
+There are two ways to extract recorded files.
+
+### 1. From the Web Interface
+
+Click on **`Download videos and images`**:
 
 <div align="center">
   <img src="img_md/download_page.png" width="250px" alt="Download page" />
 </div>
 
-    Audio, video and image files can be visualized in this page. By selecting the desired files (use filter or click `Select all`) to download, then click `Download selected` button. A .zip file will be downloaded.  
+On this page, audio, video, and image files can be viewed and selected.
 
-2. By removing the Pendrive from the system:
+- Use filters if needed
+- Click `Select all` to mark all files
+- Click `Download selected` to generate and download a `.zip` file
 
-Allert: Only use this backup mode with system powered off.
+### 2. Directly from the USB Drive
 
+You can also remove the USB drive and access the files directly on another computer.
+
+⚠️ **Important:** Only use this method when the system is **powered off**.
 
 ---
 
-© 2026 – Tested and validaded with Witty Pi 4 Mini and Raspberry Pi OS Buster and Raspberry Zero W board. 
+## ⚙️ System Notes
+
+- Media path: `/var/www/html/media`
+- Control FIFO: `/var/www/html/FIFO`
+- Designed for autonomous operation with scheduled power cycles
+- Optimized for low-power hardware such as the Raspberry Pi Zero W
+
+---
+
+## 🧪 Tested Configuration
+
+- Raspberry Pi Zero W  
+- Raspberry Pi OS Buster  
+- Witty Pi 4 Mini  
+
+---
+
+## 📄 Credits
+
+This project is based on the RPi Cam Web Interface and includes custom adaptations for Fishcam operation.
+
+© 2026 – Fishcam Project

@@ -201,6 +201,8 @@ function wittypi_reset() {
   ajax_status.send();
 }
 
+// TODO - add funcao para sincronizar horario com rede e salvar no rtc se for ajuste manual
+
 // ---------- WittyPi schedule (presets + editor) ----------
 
 var ajax_status;

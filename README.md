@@ -136,7 +136,7 @@ This page allows you to configure when the system powers on and off.
 
 ### Recording Limit
 
-The maximum continuous video duration should be **30 minutes** by default (`video_split = 1800s`).
+The maximum continuous video duration should be **10 minutes** by default (`video_split = 600s`).
 
 If a recording exceeds this limit, the system will automatically split it into multiple video files.
 

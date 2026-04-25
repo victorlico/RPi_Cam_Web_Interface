@@ -362,7 +362,7 @@
                            <td><?php makeInput('tl_interval', 4, null, 'number'); ?>s <input type="button" value="OK" onclick="send_cmd('tv ' + 10 * document.getElementById('tl_interval').value)"></td>
                         </tr>
                         <tr>
-                           <td>Video Split (seconds, default 1800, 0=off):</td>
+                           <td>Video Split (seconds, default 600, 0=off):</td>
                            <td><?php makeInput('video_split', 6, null, 'number'); ?>s <input type="button" value="OK" onclick="send_cmd('vi ' + document.getElementById('video_split').value)"></td>
                         </tr>
                         <tr>

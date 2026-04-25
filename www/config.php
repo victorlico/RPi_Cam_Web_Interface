@@ -1,4 +1,6 @@
 <?php
+	// Set timezone for log timestamps
+	date_default_timezone_set('America/Manaus');
 	//Local define of base diretory for routines here
 	define('LBASE_DIR',dirname(__FILE__));
 	//Global defines and utility functions

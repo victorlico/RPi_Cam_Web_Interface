@@ -193,24 +193,24 @@
          SCHEDULE_PURGEVIDEOHOURS => '0',
          SCHEDULE_PURGEIMAGEHOURS => '0',
          SCHEDULE_PURGELAPSEHOURS => '0',
-         SCHEDULE_GMTOFFSET => '0',
+         SCHEDULE_GMTOFFSET => '-4',
          SCHEDULE_PURGESPACEMODE => '0',
          SCHEDULE_PURGESPACELEVEL => '10',
          SCHEDULE_DAWNSTARTMINUTES => '-180',
          SCHEDULE_DAYSTARTMINUTES => '0',
          SCHEDULE_DAYENDMINUTES => '0',
          SCHEDULE_DUSKENDMINUTES => '180',
-         SCHEDULE_LATITUDE => '52.00',
-         SCHEDULE_LONGITUDE => '0.00',
+         SCHEDULE_LATITUDE => "-3.10",   // Manaus
+         SCHEDULE_LONGITUDE => "-60.02",
          SCHEDULE_MAXCAPTURE => '0',
          SCHEDULE_DAYMODE => SCHEDULE_MODE_ALLDAY,
          SCHEDULE_AUTOCAPTUREINTERVAL => '0',
          SCHEDULE_AUTOCAMERAINTERVAL => '0',
          SCHEDULE_TIMES => array("09:00"),
-         SCHEDULE_DAYS => array(array(0,1,2,3,4,5,6)),
-         SCHEDULE_COMMANDSON => array("ca 1","","","ca 1","","","","","","",""),
-         SCHEDULE_COMMANDSOFF => array("ca 0","","","ca 0","","","","","","",""),
-         SCHEDULE_MODES => array("","em night","md 1;em night","em auto","md 0;em night","","","","","","")
+         SCHEDULE_DAYS => array(array()),
+         SCHEDULE_COMMANDSON => array("","","","","","","","","","",""),
+         SCHEDULE_COMMANDSOFF => array("","","","","","","","","","",""),
+         SCHEDULE_MODES => array("","","","","","","","","","","")
       );
       return $pars;
    }

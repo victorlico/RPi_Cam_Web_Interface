@@ -34,6 +34,7 @@
    define('SCHEDULE_FIFOOUT', 'Fifo_Out');
    define('SCHEDULE_CMDPOLL', 'Cmd_Poll');
    define('SCHEDULE_MODEPOLL', 'Mode_Poll');
+   define('SCHEDULE_ENABLED', 'Schedule_Enabled');
    define('SCHEDULE_MAXCAPTURE', 'Max_Capture');
    define('SCHEDULE_LATITUDE', 'Latitude');
    define('SCHEDULE_LONGITUDE', 'Longitude');
@@ -89,7 +90,19 @@
             fwrite($fp, json_encode($saveData));
             fclose($fp);
             $schedulePars = loadPars(BASE_DIR . '/' . SCHEDULE_CONFIG);
-            sendReset();
+            if (isScheduleEnabled()) {
+               if ($schedulePID != 0) {
+                  sendReset();
+               } else {
+                  startSchedule();
+                  $schedulePID = getSchedulePID();
+               }
+            } else {
+               if ($schedulePID != 0) {
+                  stopSchedule($schedulePID);
+                  $schedulePID = getSchedulePID();
+               }
+            }
             break;
          case 'backup':
             writeLog('Backed up schedule settings');
@@ -145,12 +158,24 @@
    }
    
    function startSchedule() {
+      global $schedulePars;
+      if (!isScheduleEnabled()) {
+         writeLog("Start schedule ignored: internal scheduler is disabled.");
+         return;
+      }
       $ret = exec("php schedule.php >/dev/null &");
    }
 
    function stopSchedule($pid) {
       exec("kill $pid");
    }
+
+   function isScheduleEnabled() {
+      global $schedulePars;
+      return isset($schedulePars[SCHEDULE_ENABLED]) &&
+            $schedulePars[SCHEDULE_ENABLED] == '1';
+   }
+
    function loadPars($config) {
       $pars = initPars();
       if (file_exists($config)) {
@@ -177,7 +202,7 @@
 	  // Add in any extra SCHEDULE_TIMES and SCHEDULE_DAYS settings up to maximum count
 	  for($i = count($pars[SCHEDULE_TIMES]); $i < SCHEDULE_TIMES_MAX; $i++) {
 		  $pars[SCHEDULE_TIMES][$i] = sprintf("%02d", $i+9).":00";
-		  $pars[SCHEDULE_DAYS][$i] = array(0,1,2,3,4,5,6);
+		  $pars[SCHEDULE_DAYS][$i] = array();
 	  }
       return $pars;
    }
@@ -188,6 +213,7 @@
          SCHEDULE_FIFOOUT => BASE_DIR.'/FIFO',
          SCHEDULE_CMDPOLL => '0.03',
          SCHEDULE_MODEPOLL => '10',
+         SCHEDULE_ENABLED => '0',
          SCHEDULE_MANAGEMENTINTERVAL => '3600',
          SCHEDULE_MANAGEMENTCOMMAND => '',
          SCHEDULE_PURGEVIDEOHOURS => '0',
@@ -238,6 +264,16 @@
 		 }
          if (!is_array($mValue)) {
             switch ($mKey) {
+               case SCHEDULE_ENABLED:
+                  $options = array('Disabled', 'Enabled');
+                  echo "<td>$mKey&nbsp;&nbsp;</td><td>Select Mode&nbsp;<select id='$mKey' name='$mKey'>";
+                  for($i = 0; $i < count($options); $i++) {
+                     if ($i == $mValue) $selected = ' selected'; else $selected ='';
+                     $option = $options[$i];
+                     echo "<option value='$i'$selected>$option</option>";
+                  }
+                  echo '</select></td>';
+                  break;
                case SCHEDULE_DAYMODE:
                   $options = explode(';', LBL_DAYMODES);
                   echo "<td>$mKey&nbsp;&nbsp;</td><td>Select Mode&nbsp;<select id='$mKey' name='$mKey'" .' onclick="schedule_rows();">';
@@ -692,6 +728,10 @@ function cmdHelp() {
 
    function mainCLI() {
       global $schedulePars;
+      if (!isScheduleEnabled()) {
+         writeLog("Internal scheduler is disabled. Exiting.");
+         return;
+      }
       writeLog("RaspiCam support started");
       $captureStart = 0;
       $pipeIn = openPipe($schedulePars[SCHEDULE_FIFOIN]);

@@ -90,19 +90,7 @@
             fwrite($fp, json_encode($saveData));
             fclose($fp);
             $schedulePars = loadPars(BASE_DIR . '/' . SCHEDULE_CONFIG);
-            if (isScheduleEnabled()) {
-               if ($schedulePID != 0) {
-                  sendReset();
-               } else {
-                  startSchedule();
-                  $schedulePID = getSchedulePID();
-               }
-            } else {
-               if ($schedulePID != 0) {
-                  stopSchedule($schedulePID);
-                  $schedulePID = getSchedulePID();
-               }
-            }
+            sendReset();
             break;
          case 'backup':
             writeLog('Backed up schedule settings');
@@ -158,11 +146,6 @@
    }
    
    function startSchedule() {
-      global $schedulePars;
-      if (!isScheduleEnabled()) {
-         writeLog("Start schedule ignored: internal scheduler is disabled.");
-         return;
-      }
       $ret = exec("php schedule.php >/dev/null &");
    }
 
@@ -728,10 +711,6 @@ function cmdHelp() {
 
    function mainCLI() {
       global $schedulePars;
-      if (!isScheduleEnabled()) {
-         writeLog("Internal scheduler is disabled. Exiting.");
-         return;
-      }
       writeLog("RaspiCam support started");
       $captureStart = 0;
       $pipeIn = openPipe($schedulePars[SCHEDULE_FIFOIN]);
@@ -803,6 +782,16 @@ function cmdHelp() {
             if ($slowPoll < 0) {
                $slowPoll = 10;
                $timenow = time();
+               /*
+                * When the internal scheduler is disabled, keep the daemon alive
+                * and keep the current day period updated, but do not execute
+                * automatic schedule actions.
+                */
+               if (!isScheduleEnabled()) {
+                  $lastDayPeriod = dayPeriod();
+                  $lastDay = date("w");
+                  continue;
+               }
 			   $forcePeriodCheck = 0;
                if ($lastOnCommand >= 0) {
                   //Capture in progress, Check for maximum

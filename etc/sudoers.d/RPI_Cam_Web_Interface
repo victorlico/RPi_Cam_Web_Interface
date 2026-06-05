@@ -21,3 +21,7 @@ www-data ALL=NOPASSWD: /var/www/html/macros/wittypi_pause_loop
 www-data ALL=NOPASSWD: /var/www/html/macros/wittypi_reset
 www-data ALL=NOPASSWD: /var/www/html/macros/wittypi_write_schedule
 www-data ALL=NOPASSWD: /var/www/html/macros/wittypi_read_schedule
+www-data ALL=NOPASSWD: /var/www/html/macros/fishcam_apply_capture_cycle
+www-data ALL=NOPASSWD: /var/www/html/macros/fishcam_capture_worker
+www-data ALL=NOPASSWD: /var/www/html/macros/fishcam_safe_stop_recording
+www-data ALL=NOPASSWD: /var/www/html/macros/fishcam_apply_capture_cycle_disable

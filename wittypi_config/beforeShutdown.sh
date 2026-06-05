@@ -1,18 +1,14 @@
 #!/bin/bash
 # file: beforeShutdown.sh
 #
-# This script will be executed after Witty Pi receives shutdown command (GPIO-4 gets pulled down).
-# If you want to run your commands before turnning of your Raspberry Pi, you can place them here.
-# Raspberry Pi will not shutdown until all commands here are executed.
-#
-# Remarks: please use absolute path of the command, or it can not be found (by root user).
-# Remarks: you may append '&' at the end of command to avoid blocking the main daemon.sh.
-#
+# Runs before Raspberry Pi shutdown.
+# Stops Fishcam worker and sends ca 0 defensively.
 
-set -eo pipefail
-
+LOG_FILE="~/wittypi/fishcam_shutdown_guard.log"
+SAFE_STOP="/var/www/html/macros/fishcam_safe_stop_recording"
 FIFO="/var/www/html/FIFO"
-LOG_FILE="/home/fishcam/wittypi/fishcam_shutdown_guard.log"
+
+FINAL_WAIT_SECONDS=20
 
 exec >>"$LOG_FILE" 2>&1
 
@@ -20,17 +16,22 @@ log_local() {
   echo "$(date '+%F %T') [beforeShutdown] $*"
 }
 
-if [ -p "$FIFO" ]; then
-  log_local "Stopping recording with 'ca 0'"
-  echo "ca 0" > "$FIFO"
+log_local "Started"
 
-  # Give RPi-Cam-Web-Interface time to stop recording and finish boxing/conversion
-  sleep 10
+if [ -x "$SAFE_STOP" ]; then
+  log_local "Calling safe stop macro"
+  "$SAFE_STOP" "$FINAL_WAIT_SECONDS"
 else
-  log_local "FIFO not found at $FIFO. Nothing to stop."
+  log_local "WARNING: safe stop macro not found or not executable: $SAFE_STOP"
+
+  if [ -p "$FIFO" ]; then
+    log_local "Fallback: sending ca 0 directly"
+    echo "ca 0" > "$FIFO"
+    sleep "$FINAL_WAIT_SECONDS"
+  else
+    log_local "FIFO not found. Nothing to stop."
+  fi
 fi
 
-log_local "Syncing filesystem"
-sync
-
+log_local "Finished"
 exit 0

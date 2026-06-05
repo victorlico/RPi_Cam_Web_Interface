@@ -1,0 +1,218 @@
+#!/bin/bash
+# file: fishcam_capture_worker
+#
+# Fishcam capture worker.
+#
+# Modes:
+# - power_cycle: records once and exits.
+# - continuous_periodic: records repeatedly while Raspberry Pi stays on.
+#
+# Configuration file:
+# - /var/www/html/fishcam_capture.conf
+
+set -eo pipefail
+
+WEB_DIR="/var/www/html"
+CONF="$WEB_DIR/fishcam_capture.conf"
+FIFO="$WEB_DIR/FIFO"
+STATUS="$WEB_DIR/status_mjpeg.txt"
+MEDIA_PATH="$WEB_DIR/media"
+
+PIDFILE="/tmp/fishcam_capture_worker.pid"
+LOG="$WEB_DIR/wittypi_scheduleLog.txt"
+
+MAX_USAGE_PERCENT=95
+
+echo $$ > "$PIDFILE"
+
+log() {
+    echo "[$(date '+%Y/%m/%d %H:%M:%S')] [fishcam_capture_worker] $*" >> "$LOG"
+}
+
+cleanup() {
+    log "Cleanup requested"
+
+    if [ -p "$FIFO" ]; then
+        log "Sending ca 0 during cleanup"
+        echo "ca 0" > "$FIFO" || true
+    fi
+
+    rm -f "$PIDFILE"
+}
+
+trap cleanup INT TERM
+
+check_storage() {
+    if [ ! -d "$MEDIA_PATH" ]; then
+        log "ERROR: media path does not exist: $MEDIA_PATH"
+        return 1
+    fi
+
+    local usage
+    usage=$(df -P "$MEDIA_PATH" | awk 'NR==2 {gsub("%","",$5); print $5}')
+
+    if [ -z "$usage" ]; then
+        log "ERROR: could not read storage usage for $MEDIA_PATH"
+        return 1
+    fi
+
+    log "Storage usage in $MEDIA_PATH: ${usage}%"
+
+    if [ "$usage" -ge "$MAX_USAGE_PERCENT" ]; then
+        log "ERROR: storage usage is at or above threshold (${MAX_USAGE_PERCENT}%)"
+        return 1
+    fi
+
+    return 0
+}
+
+wait_rpicam_ready() {
+    local timeout="${1:-90}"
+
+    for i in $(seq 1 "$timeout"); do
+        if [ -p "$FIFO" ] && [ -f "$STATUS" ] && grep -q "ready" "$STATUS"; then
+            return 0
+        fi
+
+        sleep 1
+    done
+
+    return 1
+}
+
+record_once() {
+    log "Preparing record cycle"
+
+    if ! check_storage; then
+        log "Storage guard failed. Record cycle aborted."
+        return 2
+    fi
+
+    log "Waiting for RPi-Cam ready"
+
+    if ! wait_rpicam_ready 90; then
+        log "ERROR: RPi-Cam not ready"
+        return 1
+    fi
+
+    log "Starting recording for ${FISHCAM_RECORD_SECONDS}s"
+    echo "ca 1" > "$FIFO"
+
+    sleep "$FISHCAM_RECORD_SECONDS"
+
+    log "Stopping recording"
+    echo "ca 0" > "$FIFO"
+
+    log "Waiting finalize ${FISHCAM_FINALIZE_SECONDS}s"
+    sleep "$FISHCAM_FINALIZE_SECONDS"
+
+    log "Record cycle finished"
+
+    return 0
+}
+
+validate_config() {
+    if [ ! -f "$CONF" ]; then
+        log "ERROR: config not found: $CONF"
+        exit 1
+    fi
+
+    # shellcheck source=/dev/null
+    . "$CONF"
+
+    if [ "${FISHCAM_ENABLED:-0}" != "1" ]; then
+        log "Capture disabled"
+        exit 0
+    fi
+
+    if [ -z "${FISHCAM_MODE:-}" ]; then
+        log "ERROR: FISHCAM_MODE is not set"
+        exit 1
+    fi
+
+    if [ -z "${FISHCAM_RECORD_SECONDS:-}" ]; then
+        log "ERROR: FISHCAM_RECORD_SECONDS is not set"
+        exit 1
+    fi
+
+    if [ -z "${FISHCAM_INTERVAL_SECONDS:-}" ]; then
+        log "ERROR: FISHCAM_INTERVAL_SECONDS is not set"
+        exit 1
+    fi
+
+    if [ -z "${FISHCAM_FINALIZE_SECONDS:-}" ]; then
+        log "ERROR: FISHCAM_FINALIZE_SECONDS is not set"
+        exit 1
+    fi
+
+    if [ "$FISHCAM_RECORD_SECONDS" -le 0 ]; then
+        log "ERROR: invalid FISHCAM_RECORD_SECONDS=$FISHCAM_RECORD_SECONDS"
+        exit 1
+    fi
+
+    if [ "$FISHCAM_INTERVAL_SECONDS" -le "$FISHCAM_RECORD_SECONDS" ]; then
+        log "ERROR: interval must be greater than record duration"
+        exit 1
+    fi
+
+    if [ "$FISHCAM_FINALIZE_SECONDS" -lt 0 ]; then
+        log "ERROR: invalid FISHCAM_FINALIZE_SECONDS=$FISHCAM_FINALIZE_SECONDS"
+        exit 1
+    fi
+
+    log "Config loaded: mode=$FISHCAM_MODE record=${FISHCAM_RECORD_SECONDS}s interval=${FISHCAM_INTERVAL_SECONDS}s finalize=${FISHCAM_FINALIZE_SECONDS}s"
+}
+
+validate_config
+
+if [ "$FISHCAM_MODE" = "power_cycle" ]; then
+
+    record_once
+    RESULT=$?
+
+    rm -f "$PIDFILE"
+
+    if [ "$RESULT" -eq 2 ]; then
+        log "Exiting power_cycle worker due to storage guard"
+        exit 0
+    fi
+
+    exit "$RESULT"
+
+elif [ "$FISHCAM_MODE" = "continuous_periodic" ]; then
+
+    log "Starting continuous periodic mode"
+
+    while true; do
+
+        START_TS="$(date +%s)"
+
+        record_once
+        RESULT=$?
+
+        if [ "$RESULT" -eq 2 ]; then
+            log "Storage guard failed in continuous mode. Stopping worker."
+            rm -f "$PIDFILE"
+            exit 0
+        fi
+
+        END_TS="$(date +%s)"
+        ELAPSED=$((END_TS - START_TS))
+        SLEEP_SECONDS=$((FISHCAM_INTERVAL_SECONDS - ELAPSED))
+
+        if [ "$SLEEP_SECONDS" -lt 0 ]; then
+            SLEEP_SECONDS=0
+        fi
+
+        log "Sleeping ${SLEEP_SECONDS}s until next recording"
+        sleep "$SLEEP_SECONDS"
+
+    done
+
+else
+
+    log "ERROR: unknown mode: $FISHCAM_MODE"
+    rm -f "$PIDFILE"
+    exit 1
+
+fi

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+WEB_DIR="/var/www/html"
+FIFO="$WEB_DIR/FIFO"
+WORKER="fishcam_capture_worker"
+LOG="$WEB_DIR/wittypi_scheduleLog.txt"
+FINAL_WAIT="${1:-20}"
+
+log() {
+    echo "[$(date '+%Y/%m/%d %H:%M:%S')] [fishcam_safe_stop_recording] $*" >> "$LOG"
+}
+
+log "Started"
+
+if pgrep -f "$WORKER" >/dev/null; then
+    log "Stopping capture worker"
+    pkill -f "$WORKER" || true
+fi
+
+if [ -p "$FIFO" ]; then
+    log "Sending ca 0"
+    echo "ca 0" > "$FIFO"
+    sleep "$FINAL_WAIT"
+else
+    log "FIFO not found"
+fi
+
+log "Finished"

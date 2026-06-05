@@ -1,0 +1,126 @@
+#!/bin/bash
+
+set -e
+
+RECORD_SECONDS="$1"
+INTERVAL_SECONDS="$2"
+
+BOOT_MARGIN_SECONDS="${3:-60}"
+FINALIZE_SECONDS="${4:-45}"
+MIN_OFF_SECONDS="${5:-60}"
+
+WEB_DIR="/var/www/html"
+MACROS_DIR="$WEB_DIR/macros"
+CONF="$WEB_DIR/fishcam_capture.conf"
+
+WITTY_DIR="~/wittypi"
+WITTY_SCHEDULE="$WITTY_DIR/schedule.wpi"
+
+LOG="/var/www/html/wittypi_scheduleLog.txt"
+
+log() {
+    echo "[$(date '+%Y/%m/%d %H:%M:%S')] [fishcam_apply_capture_cycle] $*" >> "$LOG"
+}
+
+seconds_to_witty_time() {
+    local total="$1"
+    local m=$((total / 60))
+    local s=$((total % 60))
+
+    if [ "$m" -gt 0 ] && [ "$s" -gt 0 ]; then
+        echo "M$m S$s"
+    elif [ "$m" -gt 0 ]; then
+        echo "M$m"
+    else
+        echo "S$s"
+    fi
+}
+
+if [ -z "$RECORD_SECONDS" ] || [ -z "$INTERVAL_SECONDS" ]; then
+    echo "ERROR: usage: fishcam_apply_capture_cycle RECORD_SECONDS INTERVAL_SECONDS [BOOT_MARGIN] [FINALIZE] [MIN_OFF]"
+    exit 1
+fi
+
+if [ "$INTERVAL_SECONDS" -le "$RECORD_SECONDS" ]; then
+    echo "ERROR: interval must be greater than record duration"
+    exit 1
+fi
+
+REQUIRED_ON=$((BOOT_MARGIN_SECONDS + RECORD_SECONDS + FINALIZE_SECONDS))
+OFF_SECONDS=$((INTERVAL_SECONDS - REQUIRED_ON))
+
+if [ "$OFF_SECONDS" -ge "$MIN_OFF_SECONDS" ]; then
+
+    MODE="power_cycle"
+    ON_SECONDS="$REQUIRED_ON"
+
+    ON_WITTY="$(seconds_to_witty_time "$ON_SECONDS")"
+    OFF_WITTY="$(seconds_to_witty_time "$OFF_SECONDS")"
+
+    cat > "$CONF" <<EOF
+FISHCAM_ENABLED=1
+FISHCAM_MODE="$MODE"
+FISHCAM_RECORD_SECONDS=$RECORD_SECONDS
+FISHCAM_INTERVAL_SECONDS=$INTERVAL_SECONDS
+FISHCAM_BOOT_MARGIN_SECONDS=$BOOT_MARGIN_SECONDS
+FISHCAM_FINALIZE_SECONDS=$FINALIZE_SECONDS
+FISHCAM_MIN_OFF_SECONDS=$MIN_OFF_SECONDS
+FISHCAM_ON_SECONDS=$ON_SECONDS
+FISHCAM_OFF_SECONDS=$OFF_SECONDS
+EOF
+
+    cat > "$WITTY_SCHEDULE" <<EOF
+# Fishcam automatic capture cycle
+# Video: ${RECORD_SECONDS}s every ${INTERVAL_SECONDS}s
+# Mode: power_cycle
+BEGIN 2025-08-01 00:00:00
+END   2035-12-31 23:45:00
+ON    $ON_WITTY
+OFF   $OFF_WITTY
+EOF
+
+    log "Applying power_cycle: record=${RECORD_SECONDS}s interval=${INTERVAL_SECONDS}s ON='$ON_WITTY' OFF='$OFF_WITTY'"
+
+    cd "$WITTY_DIR"
+
+    if [ -x "./runScript.sh" ]; then
+        sudo ./runScript.sh schedule.wpi
+    elif [ -x "./runScript" ]; then
+        sudo ./runScript schedule.wpi
+    else
+        log "WARNING: runScript not found. schedule.wpi was written but not applied."
+    fi
+
+    echo "MODE=power_cycle"
+    echo "MESSAGE=Power cycle enabled."
+    echo "ON=$ON_WITTY"
+    echo "OFF=$OFF_WITTY"
+
+else
+
+    MODE="continuous_periodic"
+
+    cat > "$CONF" <<EOF
+FISHCAM_ENABLED=1
+FISHCAM_MODE="$MODE"
+FISHCAM_RECORD_SECONDS=$RECORD_SECONDS
+FISHCAM_INTERVAL_SECONDS=$INTERVAL_SECONDS
+FISHCAM_BOOT_MARGIN_SECONDS=$BOOT_MARGIN_SECONDS
+FISHCAM_FINALIZE_SECONDS=$FINALIZE_SECONDS
+FISHCAM_MIN_OFF_SECONDS=$MIN_OFF_SECONDS
+FISHCAM_ON_SECONDS=0
+FISHCAM_OFF_SECONDS=0
+EOF
+
+    log "Applying continuous_periodic: record=${RECORD_SECONDS}s interval=${INTERVAL_SECONDS}s. Power cycle disabled."
+
+    if [ -x "$MACROS_DIR/wittypi_pause_loop" ]; then
+        sudo "$MACROS_DIR/wittypi_pause_loop"
+    else
+        log "WARNING: wittypi_pause_loop not found."
+    fi
+
+    echo "MODE=continuous_periodic"
+    echo "MESSAGE=Interval too short for safe power cycling. Raspberry will remain on."
+
+fi

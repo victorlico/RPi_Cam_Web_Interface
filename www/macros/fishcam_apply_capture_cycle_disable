@@ -1,0 +1,62 @@
+#!/bin/bash
+# file: fishcam_apply_capture_cycle_disable
+#
+# Disable Fishcam automatic capture cycle.
+# This macro is called by power_schedule.php when the user disables
+# the automatic capture cycle.
+
+set -eo pipefail
+
+WEB_DIR="/var/www/html"
+MACROS_DIR="$WEB_DIR/macros"
+CONF="$WEB_DIR/fishcam_capture.conf"
+LOG="$WEB_DIR/wittypi_scheduleLog.txt"
+
+SAFE_STOP="$MACROS_DIR/fishcam_safe_stop_recording"
+WITTY_PAUSE="$MACROS_DIR/wittypi_pause_loop"
+
+log() {
+    echo "[$(date '+%Y/%m/%d %H:%M:%S')] [fishcam_apply_capture_cycle_disable] $*" >> "$LOG"
+}
+
+log "Disabling automatic capture cycle"
+
+cat > "$CONF" <<EOF
+FISHCAM_ENABLED=0
+FISHCAM_MODE="disabled"
+FISHCAM_RECORD_SECONDS=60
+FISHCAM_INTERVAL_SECONDS=300
+FISHCAM_BOOT_MARGIN_SECONDS=60
+FISHCAM_FINALIZE_SECONDS=45
+FISHCAM_MIN_OFF_SECONDS=60
+FISHCAM_ON_SECONDS=0
+FISHCAM_OFF_SECONDS=0
+EOF
+
+log "Configuration written to $CONF"
+
+if [ -x "$SAFE_STOP" ]; then
+    log "Calling safe stop macro"
+    "$SAFE_STOP" 10 || true
+else
+    log "WARNING: safe stop macro not found or not executable: $SAFE_STOP"
+
+    if [ -p "$WEB_DIR/FIFO" ]; then
+        log "Fallback: sending ca 0 directly"
+        echo "ca 0" > "$WEB_DIR/FIFO" || true
+        sleep 10
+    fi
+fi
+
+if [ -x "$WITTY_PAUSE" ]; then
+    log "Calling Witty Pi pause loop macro"
+    sudo "$WITTY_PAUSE" || true
+else
+    log "WARNING: wittypi_pause_loop not found or not executable: $WITTY_PAUSE"
+fi
+
+log "Automatic capture cycle disabled"
+
+echo "MODE=disabled"
+echo "MESSAGE=Automatic capture cycle disabled."
+echo "CONFIG=$CONF"

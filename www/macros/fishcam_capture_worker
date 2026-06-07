@@ -167,8 +167,8 @@ validate_config
 
 if [ "$FISHCAM_MODE" = "power_cycle" ]; then
 
-    record_once
-    RESULT=$?
+    RESULT=0
+    record_once || RESULT=$?
 
     rm -f "$PIDFILE"
 
@@ -187,8 +187,8 @@ elif [ "$FISHCAM_MODE" = "continuous_periodic" ]; then
 
         START_TS="$(date +%s)"
 
-        record_once
-        RESULT=$?
+        RESULT=0
+        record_once || RESULT=$?
 
         if [ "$RESULT" -eq 2 ]; then
             log "Storage guard failed in continuous mode. Stopping worker."
@@ -208,6 +208,19 @@ elif [ "$FISHCAM_MODE" = "continuous_periodic" ]; then
         sleep "$SLEEP_SECONDS"
 
     done
+    
+    WORKER="$MACROS_DIR/fishcam_capture_worker"
+
+    if [ -x "$WORKER" ]; then
+        if pgrep -f "$WORKER" >/dev/null; then
+            log "Capture worker already running."
+        else
+            log "Starting capture worker for continuous_periodic mode."
+            nohup "$WORKER" >> "$LOG" 2>&1 &
+        fi
+    else
+        log "WARNING: capture worker not found or not executable: $WORKER"
+    fi
 
 else
 

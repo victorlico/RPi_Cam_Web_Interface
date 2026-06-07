@@ -2,6 +2,27 @@
 
 set -e
 
+# Try to resolve the Witty Pi install directory if not provided via env.
+resolve_wittypi_dir() {
+  if [ -n "${WITTYPI_DIR:-}" ] && [ -d "$WITTYPI_DIR" ]; then
+    echo "$WITTYPI_DIR"; return 0
+  fi
+  # Prefer a directory that actually contains schedule.wpi; fall back to one with utilities.sh
+  for d in /home/*/wittypi /root/wittypi; do
+    [ -f "$d/schedule.wpi" ] && { echo "$d"; return 0; }
+  done
+  for d in /home/*/wittypi /root/wittypi; do
+    [ -f "$d/utilities.sh" ] && { echo "$d"; return 0; }
+  done
+  return 1
+}
+
+WITTYPI_DIR="$(resolve_wittypi_dir || true)"
+if [ -z "${WITTYPI_DIR:-}" ]; then
+  echo "❌ Could not locate ~/wittypi. Set WITTYPI_DIR env var or create /home/<user>/wittypi." >&2
+  exit 1
+fi
+
 RECORD_SECONDS="$1"
 INTERVAL_SECONDS="$2"
 
@@ -13,8 +34,7 @@ WEB_DIR="/var/www/html"
 MACROS_DIR="$WEB_DIR/macros"
 CONF="$WEB_DIR/fishcam_capture.conf"
 
-WITTY_DIR="~/wittypi"
-WITTY_SCHEDULE="$WITTY_DIR/schedule.wpi"
+WITTY_SCHEDULE="$WITTYPI_DIR/schedule.wpi"
 
 LOG="/var/www/html/wittypi_scheduleLog.txt"
 

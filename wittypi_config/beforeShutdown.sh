@@ -4,7 +4,9 @@
 # Runs before Raspberry Pi shutdown.
 # Stops Fishcam worker and sends ca 0 defensively.
 
-LOG_FILE="~/wittypi/fishcam_shutdown_guard.log"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WITTYPI_DIR="$SCRIPT_DIR"
+LOG_FILE="$WITTYPI_DIR/fishcam_shutdown_guard.log"
 SAFE_STOP="/var/www/html/macros/fishcam_safe_stop_recording"
 FIFO="/var/www/html/FIFO"
 

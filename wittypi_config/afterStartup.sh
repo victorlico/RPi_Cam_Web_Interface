@@ -10,7 +10,9 @@
 
 set -eo pipefail
 
-WITTYPI_DIR="~/wittypi"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WITTYPI_DIR="$SCRIPT_DIR"
+
 FIFO="/var/www/html/FIFO"
 MEDIA_PATH="/var/www/html/media"
 SCHEDULE_FILE="$WITTYPI_DIR/schedule.wpi"

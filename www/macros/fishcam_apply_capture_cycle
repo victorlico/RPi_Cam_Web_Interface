@@ -101,12 +101,14 @@ EOF
 
     log "Applying power_cycle: record=${RECORD_SECONDS}s interval=${INTERVAL_SECONDS}s ON='$ON_WITTY' OFF='$OFF_WITTY'"
 
-    cd "$WITTY_DIR"
+    cd "$WITTYPI_DIR"
 
     if [ -x "./runScript.sh" ]; then
-        sudo ./runScript.sh schedule.wpi
+        log "Executing Witty Pi runScript.sh"
+        sudo ./runScript.sh
     elif [ -x "./runScript" ]; then
-        sudo ./runScript schedule.wpi
+        log "Executing Witty Pi runScript"
+        sudo ./runScript
     else
         log "WARNING: runScript not found. schedule.wpi was written but not applied."
     fi

@@ -78,7 +78,12 @@ echo "[2/4] Configurando armazenamento externo..."
 
 chmod +x "$REPO_DIR/configure_external_storage.sh"
 cd "$REPO_DIR"
-./configure_external_storage.sh
+
+if [ "$(id -u)" -eq 0 ]; then
+    "$REPO_DIR/configure_external_storage.sh"
+else
+    sudo "$REPO_DIR/configure_external_storage.sh"
+fi
 
 # =========================
 # 3. Configurar Witty Pi scripts

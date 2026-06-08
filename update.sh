@@ -97,7 +97,10 @@ else
 
     # Atualização "appliance-style" (sem commits locais)
     git reset --hard "origin/$current_branch"
-    chmod u+x *.sh
+
+    chmod u+x *.sh 2>/dev/null || true
+    chmod u+x www/macros/* 2>/dev/null || true
+    chmod u+x wittypi_config/*.sh 2>/dev/null || true
 fi
 
 trap : 0
@@ -106,10 +109,17 @@ dialog --title 'Update message' --infobox 'Update finished.' 4 30
 sleep 2
 
 # -------------------------------------------------------------------
-# Executa o install.sh atualizado
+# Executa o install_and_update.sh atualizado
 # -------------------------------------------------------------------
+if [ ! -f "./install_and_update.sh" ]; then
+    echo "ERROR: install_and_update.sh not found."
+    exit 1
+fi
+
+chmod +x ./install_and_update.sh
+
 if [ $# -eq 0 ]; then
-    ./install.sh
+    ./install_and_update.sh
 else
-    ./install.sh "$1"
+    ./install_and_update.sh "$1"
 fi

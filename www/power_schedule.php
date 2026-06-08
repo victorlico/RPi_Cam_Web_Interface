@@ -443,7 +443,7 @@ function mainHTML() {
                             class="form-control"
                             id="finalize_seconds"
                             name="finalize_seconds"
-                            value="<?php echo fishcam_config_value($captureConfig, 'FISHCAM_FINALIZE_SECONDS', '45'); ?>"
+                            value="<?php echo fishcam_config_value($captureConfig, 'FISHCAM_FINALIZE_SECONDS', '90'); ?>"
                             min="5"
                             step="1">
                         <small>seconds reserved after stopping video before shutdown</small>

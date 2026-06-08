@@ -109,17 +109,17 @@ dialog --title 'Update message' --infobox 'Update finished.' 4 30
 sleep 2
 
 # -------------------------------------------------------------------
-# Executa o install_and_update.sh atualizado
+# Executa o install_and_config.sh atualizado
 # -------------------------------------------------------------------
-if [ ! -f "./install_and_update.sh" ]; then
-    echo "ERROR: install_and_update.sh not found."
+if [ ! -f "./install_and_config.sh" ]; then
+    echo "ERROR: install_and_config.sh not found."
     exit 1
 fi
 
-chmod +x ./install_and_update.sh
+chmod +x ./install_and_config.sh
 
 if [ $# -eq 0 ]; then
-    ./install_and_update.sh
+    ./install_and_config.sh
 else
-    ./install_and_update.sh "$1"
+    ./install_and_config.sh "$1"
 fi
